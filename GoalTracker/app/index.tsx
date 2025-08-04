@@ -1,5 +1,5 @@
-import GoalSettingScreen from './goals';
+import DashboardScreen from './dashboard';
 
 export default function Index() {
-  return <GoalSettingScreen />;
+  return <DashboardScreen />;
 }

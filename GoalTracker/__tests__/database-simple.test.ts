@@ -40,7 +40,7 @@ describe('Database Functions - Simple Tests', () => {
       
       expect(SQLite.openDatabaseSync).toHaveBeenCalledWith('goals.db');
       expect(mockExecAsync).toHaveBeenCalledWith(
-        'CREATE TABLE IF NOT EXISTS goals (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, targetDate TEXT, targetNumber REAL, targetUnit TEXT, completed INTEGER DEFAULT 0);'
+        'CREATE TABLE IF NOT EXISTS goals (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, targetDate TEXT, targetNumber REAL, targetUnit TEXT, completed INTEGER DEFAULT 0, photos TEXT);'
       );
     });
 

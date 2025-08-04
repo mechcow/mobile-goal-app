@@ -11,6 +11,10 @@ export default {
     border: '#ccc',
     card: '#f8f8f8',
     placeholderTextColor: '#d3d3d3',
+    image: {
+      width: '100%',
+      resizeMode: 'contain',
+    }
   },
   dark: {
     text: '#fff',
@@ -21,5 +25,9 @@ export default {
     border: '#333',
     card: '#1a1a1a',
     placeholderTextColor: '#666',
+    image: {
+      width: '100%',
+      resizeMode: 'contain',
+    }
   },
 };
