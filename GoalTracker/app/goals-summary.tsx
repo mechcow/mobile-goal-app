@@ -1,5 +1,6 @@
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import Colors from '../constants/Colors';
 import { getGoals } from '../database';
 import { Goal } from '../types/goals';
@@ -7,6 +8,7 @@ import { Goal } from '../types/goals';
 const GoalsSummaryScreen = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
+  const router = useRouter();
   const [goals, setGoals] = useState<Goal[]>([]);
 
   useEffect(() => {
@@ -36,6 +38,15 @@ const GoalsSummaryScreen = () => {
             <Text style={styles.goalStatus}>Status: {goal.completed ? 'Completed' : 'Pending'}</Text>
           </View>
         ))
+      )}
+      
+      {goals.length > 0 && (
+        <TouchableOpacity 
+          style={styles.continueButton} 
+          onPress={() => router.push('/initial-measurements')}
+        >
+          <Text style={styles.continueButtonText}>Add Progress Photos & Measurements</Text>
+        </TouchableOpacity>
       )}
     </ScrollView>
   );
@@ -89,6 +100,19 @@ const getStyles = (colorScheme: 'light' | 'dark' | null | undefined) => {
     goalStatus: {
       fontSize: 14,
       color: colors.text,
+      fontWeight: 'bold',
+    },
+    continueButton: {
+      backgroundColor: '#007BFF',
+      padding: 15,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginTop: 20,
+      marginBottom: 20,
+    },
+    continueButtonText: {
+      color: '#FFFFFF',
+      fontSize: 16,
       fontWeight: 'bold',
     },
   });

@@ -113,7 +113,7 @@ const GoalSettingScreen = () => {
 
       setSubmitMessage({ type: 'success', text: 'Goals saved successfully!' });
       setTimeout(() => {
-        router.push('/goals-summary');
+        router.push('/initial-measurements');
       }, 1500);
     } catch (error) {
       console.error('Failed to save goals:', error);
