@@ -1,16 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useColorScheme } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import Colors from '../constants/Colors';
 import { getGoals } from '../database';
-
-type Goal = {
-  id: number;
-  name: string;
-  description: string;
-  targetDate: string;
-  completed: number;
-};
+import { Goal } from '../types/goals';
 
 const GoalsSummaryScreen = () => {
   const colorScheme = useColorScheme();
