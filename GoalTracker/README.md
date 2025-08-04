@@ -27,7 +27,8 @@ This is a fitness tracking / goal tracking app. It is built with React Native an
 
 ## TODO
 
-[] - Unit Tests
+[x] - Unit Tests
+[] - Validation of goal fields
 [] - Ability to take photos from the app
 [] - Ability to enter goal progress
 [] - Ability to graph goal progress and show photos during the journey

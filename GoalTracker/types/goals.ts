@@ -3,5 +3,16 @@ export interface Goal {
     name: string;
     description: string;
     targetDate: string;
-    completed: number; // 0 = not completed, 1 = completed
+    targetNumber: number;
+    targetUnit: string;
+    completed?: number; // 0 = not completed, 1 = completed
+    photos?: string[]; // array of photo paths
+}
+
+export interface ValidationErrors {
+    name?: string;
+    description?: string;
+    targetDate?: string;
+    targetNumber?: string;
+    targetUnit?: string;
 }
