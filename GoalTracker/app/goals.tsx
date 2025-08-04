@@ -5,14 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Button, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
 import Colors from '../constants/Colors';
 import { initDatabase, saveGoal } from '../database';
-
-type Goal = {
-  name: string;
-  description: string;
-  targetDate: string;
-  targetNumber: number;
-  targetUnit: string;
-};
+import { Goal } from '../types/goals';
 
 const GoalSettingScreen = () => {
   const colorScheme = useColorScheme();

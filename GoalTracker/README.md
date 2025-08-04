@@ -1,6 +1,6 @@
-# Welcome to your Expo app 👋
+# Fitness Tracking / Goal Tracking App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a fitness tracking / goal tracking app. It is built with React Native and Expo. Enter one or more fitness goals, take a photo, then track progress towards the goals. Show progress in a graph with overlay of photos during the journey.
 
 ## Get started
 
@@ -16,35 +16,20 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## App Features
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Enter one or more fitness goals
+- Take a photos and track progress towards goals
+- Show progress in a graph with overlay of photos during the journey
+- Show a list of photos taken during the journey
+- Show a list of goals
+- Show a list of photos
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## TODO
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+[] - Unit Tests
+[] - Ability to take photos from the app
+[] - Ability to enter goal progress
+[] - Ability to graph goal progress and show photos during the journey
+[] - Ability to delete goals
+[] - Ability to delete photos
