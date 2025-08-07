@@ -1,10 +1,9 @@
-
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import GoalForm from '../components/GoalForm';
 import Colors from '../constants/Colors';
+import { validUnits } from '../constants/units';
 import { initDatabase, saveGoal } from '../database';
 import { Goal, ValidationErrors } from '../types/goals';
 import { hasValidationErrors, validateGoal } from '../utils/validation';
@@ -13,26 +12,22 @@ const GoalSettingScreen = () => {
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme);
   const router = useRouter();
-  const [goals, setGoals] = useState<Goal[]>([
-    { id: -1, name: '', description: '', targetDate: '', targetNumber: 0, targetUnit: '' },
+  const [goals, setGoals] = useState<Partial<Goal>[]>([
+    { name: '', description: '', targetDate: '', targetNumber: 0, targetUnit: '' },
   ]);
   const [showPickers, setShowPickers] = useState<boolean[]>([false]);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors[]>([]);
-  const [hasValidated, setHasValidated] = useState<boolean[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-
-  const validUnits = ['km', 'miles', 'lbs', 'kg'];
 
   useEffect(() => {
     initDatabase();
   }, []);
 
   const handleAddGoal = () => {
-    setGoals([...goals, { id: -1, name: '', description: '', targetDate: '', targetNumber: 0, targetUnit: '' }]);
+    setGoals([...goals, { name: '', description: '', targetDate: '', targetNumber: 0, targetUnit: '' }]);
     setShowPickers([...showPickers, false]);
     setValidationErrors([...validationErrors, {}]);
-    setHasValidated([...hasValidated, false]);
   };
 
   const handleGoalChange = (
@@ -41,29 +36,19 @@ const GoalSettingScreen = () => {
     value: string | number
   ) => {
     const newGoals = [...goals];
-    // Type-safe assignment for known Goal fields
-    if (field === 'name' || field === 'description' || field === 'targetDate' || field === 'targetUnit') {
-      newGoals[index][field] = value as string;
-    } else if (field === 'targetNumber' || field === 'id') {
-      newGoals[index][field] = value as number;
-    }
+    newGoals[index] = { ...newGoals[index], [field]: value };
     setGoals(newGoals);
 
-    // Live validation
-    if (hasValidated[index] || value !== '') {
-      const newValidationErrors = [...validationErrors];
-      const goal = newGoals[index];
-      const errors = validateGoal(goal);
-      newValidationErrors[index] = errors;
-      setValidationErrors(newValidationErrors);
-    }
+    const newValidationErrors = [...validationErrors];
+    const errors = validateGoal(newGoals[index] as Goal);
+    newValidationErrors[index] = errors;
+    setValidationErrors(newValidationErrors);
   };
 
   const onChangeDate = (index: number, event: any, selectedDate?: Date) => {
-    const currentDate = selectedDate || new Date();
     setShowPickers(showPickers.map((_, i) => (i === index ? false : _)));
     if (event.type === 'set' && selectedDate) {
-      handleGoalChange(index, 'targetDate', currentDate.toISOString().split('T')[0]);
+      handleGoalChange(index, 'targetDate', selectedDate.toISOString().split('T')[0]);
     }
   };
 
@@ -74,11 +59,9 @@ const GoalSettingScreen = () => {
   const handleRemoveGoal = (index: number) => {
     const newGoals = goals.filter((_, i) => i !== index);
     const newValidationErrors = validationErrors.filter((_, i) => i !== index);
-    const newHasValidated = hasValidated.filter((_, i) => i !== index);
     const newShowPickers = showPickers.filter((_, i) => i !== index);
     setGoals(newGoals);
     setValidationErrors(newValidationErrors);
-    setHasValidated(newHasValidated);
     setShowPickers(newShowPickers);
   };
 
@@ -87,16 +70,7 @@ const GoalSettingScreen = () => {
       setIsSubmitting(true);
       setSubmitMessage(null);
       
-      // Validate all goals
-      const allErrors: ValidationErrors[] = [];
-      const newHasValidated = goals.map(() => true);
-      setHasValidated(newHasValidated);
-
-      for (let i = 0; i < goals.length; i++) {
-        const errors = validateGoal(goals[i]);
-        allErrors.push(errors);
-      }
-
+      const allErrors: ValidationErrors[] = goals.map(goal => validateGoal(goal as Goal));
       setValidationErrors(allErrors);
 
       const hasAnyErrors = allErrors.some(errors => hasValidationErrors(errors));
@@ -108,7 +82,7 @@ const GoalSettingScreen = () => {
       }
 
       for(const goal of goals) {
-        await saveGoal(goal.name, goal.description, goal.targetDate, goal.targetNumber, goal.targetUnit);
+        await saveGoal(goal.name!, goal.description!, goal.targetDate!, goal.targetNumber!, goal.targetUnit!);
       }
 
       setSubmitMessage({ type: 'success', text: 'Goals saved successfully!' });
@@ -123,18 +97,6 @@ const GoalSettingScreen = () => {
     }
   };
 
-  const renderErrorText = (error: string | undefined) => {
-    if (!error) return null;
-    return <Text style={styles.errorText}>{error}</Text>;
-  };
-
-  const getInputStyle = (hasError: boolean) => {
-    return [
-      styles.input,
-      hasError && styles.inputError
-    ];
-  };
-
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Set Your Fitness Goals</Text>
@@ -146,90 +108,17 @@ const GoalSettingScreen = () => {
       )}
 
       {goals.map((goal, index) => (
-        <View key={index} style={styles.goalContainer}>
-          <View style={styles.goalHeader}>
-            <Text style={styles.goalTitle}>Goal {index + 1}</Text>
-            {index > 0 && (
-              <TouchableOpacity onPress={() => handleRemoveGoal(index)} style={styles.removeButton}>
-                <Text style={styles.removeButtonText}>Remove</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={getInputStyle(!!validationErrors[index]?.name)}
-              placeholderTextColor={styles.placeholder.color}
-              placeholder="Goal Name"
-              value={goal.name}
-              onChangeText={(text) => handleGoalChange(index, 'name', text)}
-            />
-            {renderErrorText(validationErrors[index]?.name)}
-          </View>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={getInputStyle(!!validationErrors[index]?.description)}
-              placeholderTextColor={styles.placeholder.color}
-              placeholder="Description"
-              value={goal.description}
-              onChangeText={(text) => handleGoalChange(index, 'description', text)}
-            />
-            {renderErrorText(validationErrors[index]?.description)}
-          </View>
-
-          <View style={styles.inputContainer}>
-            <TouchableOpacity 
-              onPress={() => showDatePicker(index)} 
-              style={[styles.datePickerButton, !!validationErrors[index]?.targetDate && styles.inputError]}
-            >
-              <Text style={styles.datePickerButtonText}>
-                {goal.targetDate ? goal.targetDate : 'Select Target Date'}
-              </Text>
-            </TouchableOpacity>
-            {renderErrorText(validationErrors[index]?.targetDate)}
-          </View>
-
-          {showPickers[index] && (
-            <DateTimePicker
-              value={new Date(goal.targetDate || new Date())}
-              mode="date"
-              display="spinner"
-              onChange={(event, selectedDate) => onChangeDate(index, event, selectedDate)}
-            />
-          )}
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={getInputStyle(!!validationErrors[index]?.targetNumber)}
-              placeholderTextColor={styles.placeholder.color}
-              placeholder="Target Number"
-              value={goal.targetNumber.toString()}
-              keyboardType="numeric"
-              onChangeText={(text) => handleGoalChange(index, 'targetNumber', text)}
-            />
-            {renderErrorText(validationErrors[index]?.targetNumber)}
-          </View>
-
-          <View style={styles.inputContainer}>
-            <View style={[styles.unitPickerContainer, !!validationErrors[index]?.targetUnit && styles.inputError]}>
-              <Picker
-                selectedValue={goal.targetUnit}
-                onValueChange={(itemValue) => {
-                  handleGoalChange(index, 'targetUnit', itemValue);
-                }}
-                style={styles.picker}
-                mode="dropdown"
-              >
-                <Picker.Item label="Select a unit..." value="" />
-                {validUnits.map((unit) => (
-                  <Picker.Item key={unit} label={unit} value={unit} />
-                ))}
-              </Picker>
-            </View>
-            {renderErrorText(validationErrors[index]?.targetUnit)}
-          </View>
-        </View>
+        <GoalForm
+          key={index}
+          index={index}
+          goal={goal as Goal}
+          validationErrors={validationErrors[index] || {}}
+          onGoalChange={(field, value) => handleGoalChange(index, field, value)}
+          onRemove={() => handleRemoveGoal(index)}
+          showDatePicker={() => showDatePicker(index)}
+          showPicker={showPickers[index]}
+          onChangeDate={(event, selectedDate) => onChangeDate(index, event, selectedDate)}
+        />
       ))}
       
       <TouchableOpacity onPress={handleAddGoal} style={styles.addButton}>
@@ -285,60 +174,8 @@ const getStyles = (colorScheme: 'light' | 'dark' | null | undefined) => {
       fontSize: 14,
       fontWeight: '500',
     },
-    goalContainer: {
-      marginBottom: 20,
-      padding: 15,
-      borderRadius: 10,
-      backgroundColor: colors.card,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    goalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 10,
-    },
-    goalTitle: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: colors.text,
-    },
-    removeButton: {
-      padding: 5,
-    },
-    removeButtonText: {
-      color: '#dc3545',
-      fontSize: 14,
-      fontWeight: '500',
-    },
-    inputContainer: {
-      marginBottom: 10,
-    },
-    input: {
-      height: 40,
-      borderColor: colors.border,
-      borderWidth: 1,
-      paddingHorizontal: 10,
-      borderRadius: 5,
-      color: colors.text,
-      backgroundColor: colors.background,
-    },
-    inputError: {
-      borderColor: '#dc3545',
-      borderWidth: 2,
-    },
-    errorText: {
-      color: '#dc3545',
-      fontSize: 12,
-      marginTop: 4,
-      marginLeft: 4,
-    },
-    placeholder: {
-      color: colors.placeholderTextColor,
-    },
     addButton: {
-      backgroundColor: '#007BFF',
+      backgroundColor: Colors.light.tint,
       padding: 15,
       borderRadius: 8,
       alignItems: 'center',
@@ -374,47 +211,6 @@ const getStyles = (colorScheme: 'light' | 'dark' | null | undefined) => {
       color: '#FFFFFF',
       fontSize: 16,
       fontWeight: 'bold',
-    },
-    datePickerButton: {
-      height: 40,
-      justifyContent: 'center',
-      borderColor: colors.border,
-      borderWidth: 1,
-      paddingHorizontal: 10,
-      borderRadius: 5,
-      backgroundColor: colors.background,
-    },
-    datePickerButtonText: {
-      color: colors.text,
-    },
-    unitPickerButton: {
-      height: 40,
-      justifyContent: 'center',
-      borderColor: colors.border,
-      borderWidth: 1,
-      paddingHorizontal: 10,
-      borderRadius: 5,
-      backgroundColor: colors.background,
-    },
-    unitPickerButtonText: {
-      color: colors.text,
-    },
-    unitPickerContainer: {
-      borderColor: colors.border,
-      borderWidth: 1,
-      borderRadius: 5,
-      backgroundColor: colors.background,
-    },
-    pickerContainer: {
-      borderColor: colors.border,
-      borderWidth: 1,
-      borderRadius: 5,
-      backgroundColor: colors.background,
-      marginTop: 1,
-    },
-    picker: {
-      height: 50,
-      color: colors.text,
     },
   });
 };

@@ -1,5 +1,6 @@
 
 import * as SQLite from 'expo-sqlite';
+import { Goal, GoalProgress } from './types/goals';
 
 // Use a function to get the database instance to allow for better mocking
 let db: any = null;
@@ -41,10 +42,10 @@ export const saveGoal = async (name: string, description: string, targetDate: st
   return result;
 };
 
-export const getGoals = async (): Promise<any[]> => {
+export const getGoals = async (): Promise<Goal[]> => {
   // getAllAsync is used for SELECT statements to get all rows.
   // It returns an array of objects representing the rows.
-  const allRows = await getDatabase().getAllAsync('SELECT * FROM goals;');
+  const allRows: Goal[] = await getDatabase().getAllAsync('SELECT * FROM goals;');
   console.log('Goals retrieved successfully:', allRows);
   return allRows;
 };
@@ -79,9 +80,9 @@ export const saveGoalProgress = async (goalId: number, currentValue: number, dat
   }
 };
 
-export const getGoalProgress = async (goalId: number): Promise<any[]> => {
+export const getGoalProgress = async (goalId: number): Promise<GoalProgress[]> => {
   try {
-    const progress = await getDatabase().getAllAsync(
+    const progress: GoalProgress[] = await getDatabase().getAllAsync(
       'SELECT * FROM goal_progress WHERE goalId = ? ORDER BY date ASC;',
       goalId
     );

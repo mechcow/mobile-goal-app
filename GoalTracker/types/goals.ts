@@ -16,3 +16,16 @@ export interface ValidationErrors {
     targetNumber?: string;
     targetUnit?: string;
 }
+
+export interface GoalProgress {
+    id: number;
+    goalId: number;
+    currentValue: number;
+    date: string;
+}
+
+export interface GoalWithProgress extends Goal {
+    progress: GoalProgress[];
+    latestProgress?: number;
+    progressPercentage: number;
+}
